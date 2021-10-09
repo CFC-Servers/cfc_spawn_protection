@@ -154,7 +154,7 @@ local function playerSpawnedAtEnemySpawnPoint( ply )
 end
 
 local function playerIsInPvp( ply )
-    return ply:GetNWBool( "CFC_PvP_Mode", false )
+    return ply:isInPvp()
 end
 
 local function playerHasSpawnProtection( ply )
