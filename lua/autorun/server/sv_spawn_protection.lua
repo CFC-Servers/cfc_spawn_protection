@@ -44,7 +44,7 @@ end
 -- Makes a given player transparent
 local function setPlayerTransparent( ply )
     ply:SetRenderMode( RENDERMODE_TRANSALPHA )
-    ply:Fire( "alpha", 175, 0 )
+    ply:Fire( "alpha", 180, 0 )
 end
 
 -- Returns a given player to visible state
