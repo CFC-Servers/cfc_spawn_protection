@@ -232,11 +232,9 @@ end
 -- Hooks --
 
 -- Remove spawn protection when a weapon is drawn
-hook.Remove( "PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange" )
 hook.Add( "PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtectionWeaponChangeCheck, HOOK_LOW )
 
 -- Remove spawn protection when leaving Pvp ( just cleanup )
-hook.Remove( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP" )
 hook.Add( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function( ply )
     if not playerHasSpawnProtection( ply ) then return end
 
@@ -244,7 +242,6 @@ hook.Add( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function( ply )
 end )
 
 -- Remove spawn protection when player enters vehicle
-hook.Remove( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle" )
 hook.Add( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", function( ply )
     if not playerHasSpawnProtection( ply ) then return end
 
@@ -252,13 +249,11 @@ hook.Add( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", func
 end )
 
 -- Enable spawn protection when spawning in PvP
-hook.Remove( "PlayerSpawn", "CFCsetSpawnProtection" )
 hook.Add( "PlayerSpawn", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn )
 
 -- Trigger spawn protection removal on player move
-hook.Remove( "KeyPress", "CFCspawnProtectionMoveCheck" )
 hook.Add( "KeyPress", "CFCspawnProtectionMoveCheck", spawnProtectionMoveCheck )
 
 -- Prevent entity damage while in spawn protection
-hook.Remove( "EntityTakeDamage", "CFCpreventDamageDuringSpawnProtection" )
 hook.Add( "EntityTakeDamage", "CFCpreventDamageDuringSpawnProtection", preventDamageDuringSpawnProtection, HOOK_HIGH )
+
