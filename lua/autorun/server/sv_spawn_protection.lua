@@ -55,16 +55,6 @@ local function setPlayerVisible( ply )
     ply:Fire( "alpha", 255, 0 )
 end
 
-local function setPlayerNoCollide( ply )
-    ply:SetCollisionGroup( COLLISION_GROUP_WORLD )
-end
-
-local function setPlayerCollide( ply )
-    if not isValidPlayer( ply ) then return end
-
-    ply:SetCollisionGroup( COLLISION_GROUP_NONE )
-end
-
 -- Creates a unique name for the Spawn Protection Decay timer
 local function playerDecayTimerIdentifier( ply )
     return spawnDecayPrefix .. ply:SteamID64()
@@ -118,7 +108,6 @@ local function createDecayTimer( ply )
         local printMessage = "You've lost your default spawn protection"
         removeSpawnProtection( ply, printMessage )
         setPlayerVisible( ply )
-        setPlayerCollide( ply )
         removeDelayedRemoveTimer( ply )
     end )
 end
@@ -132,7 +121,6 @@ local function createDelayedRemoveTimer( ply )
         local printMessage = "You've lost your spawn protection because you moved after spawning"
         removeSpawnProtection( ply, printMessage )
         setPlayerVisible( ply )
-        setPlayerCollide( ply )
         removeDecayTimer( ply )
     end )
 end
@@ -188,15 +176,13 @@ local function setSpawnProtectionForPvpSpawn( ply )
     setLastSpawnTime( ply )
     setSpawnProtection( ply )
     setPlayerTransparent( ply )
-    setPlayerNoCollide( ply )
     createDecayTimer( ply )
 end
 
--- Instantly removes spawn protection and removes timers, alpha level and enables collisions again.
+-- Instantly removes spawn protection and removes timers and alpha level.
 local function instantRemoveSpawnProtection( ply, message )
     removeSpawnProtection( ply, message )
     setPlayerVisible( ply )
-    setPlayerCollide( ply )
     removeDecayTimer( ply )
     removeDelayedRemoveTimer( ply )
 end
