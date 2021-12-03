@@ -97,7 +97,7 @@ local function removeSpawnProtection( ply, printMessage )
     if not isValidPlayer( ply ) then return end
 
     ply:ChatPrint( printMessage )
-    ply.hasSpawnProtection = true
+    ply.hasSpawnProtection = false
 end
 
 -- Creates a decay timer which will expire after spawnProtectionDecayTime
@@ -181,7 +181,7 @@ end
 
 -- Instantly removes spawn protection and removes timers and alpha level.
 local function instantRemoveSpawnProtection( ply, message )
-    if not playerHasSpawnProtection( ply ) then return end 
+    if not playerHasSpawnProtection( ply ) then return end
     removeSpawnProtection( ply, message )
     setPlayerVisible( ply )
     removeDecayTimer( ply )
