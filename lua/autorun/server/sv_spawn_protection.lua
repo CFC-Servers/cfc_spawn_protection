@@ -114,7 +114,7 @@ end
 local function createDecayTimer( ply )
     local playerIdentifer = playerDecayTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionDecayTime, 1, function()
-    	
+
         local printMessage = "You've lost your default spawn protection"
         removeSpawnProtection( ply, printMessage )
         setPlayerVisible( ply )
@@ -128,7 +128,7 @@ local function createDelayedRemoveTimer( ply )
     local playerIdentifer = playerDelayedRemovalTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionMoveDelay, 1, function()
         ply:SetNWBool( "disablingSpawnProtection", false )
-        
+
         local printMessage = "You've lost your spawn protection because you moved after spawning"
         removeSpawnProtection( ply, printMessage )
         setPlayerVisible( ply )
@@ -194,7 +194,7 @@ end
 
 -- Called on weapon change to check if the weapon is allowed,
 -- and remove spawn protection if it's not
-local function spawnProtectionWeaponChangeCheck( ply, oldWeapon, newWeapon )
+local function spawnProtectionWeaponChangeCheck( ply, _, newWeapon )
     if not playerIsInPvp( ply ) then return end
     if not playerHasSpawnProtection( ply ) then return end
     if weaponIsAllowed( newWeapon ) then return end
@@ -219,7 +219,7 @@ local function spawnProtectionMoveCheck( ply, keyCode )
 end
 
 -- Prevents damage if a player has spawn protection
-local function preventDamageDuringSpawnProtection( ply, damageInfo )
+local function preventDamageDuringSpawnProtection( ply )
     if playerHasSpawnProtection( ply ) then return true end
 end
 
@@ -233,7 +233,7 @@ hook.Add( "PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtectio
 hook.Remove( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP" )
 hook.Add( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function( ply )
     if not playerHasSpawnProtection( ply ) then return end
-    
+
     local printMessage = "You've left pvp mode and lost spawn protection"
     removeSpawnProtection( ply, printMessage )
     setPlayerVisible( ply )
@@ -246,7 +246,7 @@ end )
 hook.Remove( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle" )
 hook.Add( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", function( ply )
     if not playerHasSpawnProtection( ply ) then return end
-    
+
     local printMessage = "You've entered a vehicle and lost spawn protection"
     removeSpawnProtection( ply, printMessage )
     setPlayerVisible( ply )
