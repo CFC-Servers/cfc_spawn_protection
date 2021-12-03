@@ -211,7 +211,14 @@ local function spawnProtectionWeaponChangeCheck( ply, _, newWeapon )
     local lastSpawnTime = ply:GetNWInt( "lastSpawnTime", CurTime() - spawnProtectionWeaponGracePeriod )
     if lastSpawnTime >= CurTime() - spawnProtectionWeaponGracePeriod then return end
 
-    instantRemoveSpawnProtection( ply, "You've equipped a weapon and lost spawn protection" )
+    instantRemoveSpawnProtection( ply, "You've equipped a weapon and lost spawn protection." )
+end
+
+-- Remove spawn protection on using objects
+local function spawnProtectionUseCheck( ply )
+    if not playerIsInPvp( ply ) then return end
+    if not playerHasSpawnProtection( ply ) then return end
+    instantRemoveSpawnProtection( ply, "You've used an entity and lost spawn protection." )
 end
 
 -- Called on player keyDown events to check if a movement key was pressed
@@ -234,18 +241,21 @@ end
 -- Remove spawn protection when a weapon is drawn
 hook.Add( "PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtectionWeaponChangeCheck, HOOK_LOW )
 
+-- Prevents players from using weapons / vehicles.
+hook.Add( "PlayerUse", "CFCspawnProtectionPlayerUse", spawnProtectionUseCheck )
+
 -- Remove spawn protection when leaving Pvp ( just cleanup )
 hook.Add( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function( ply )
     if not playerHasSpawnProtection( ply ) then return end
 
-    instantRemoveSpawnProtection( ply, "You've left pvp mode and lost spawn protection" )
+    instantRemoveSpawnProtection( ply, "You've left pvp mode and lost spawn protection." )
 end )
 
 -- Remove spawn protection when player enters vehicle
 hook.Add( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", function( ply )
     if not playerHasSpawnProtection( ply ) then return end
 
-    instantRemoveSpawnProtection( ply, "You've entered a vehicle and lost spawn protection" )
+    instantRemoveSpawnProtection( ply, "You've entered a vehicle and lost spawn protection." )
 end )
 
 -- Enable spawn protection when spawning in PvP
@@ -256,4 +266,3 @@ hook.Add( "KeyPress", "CFCspawnProtectionMoveCheck", spawnProtectionMoveCheck )
 
 -- Prevent entity damage while in spawn protection
 hook.Add( "EntityTakeDamage", "CFCpreventDamageDuringSpawnProtection", preventDamageDuringSpawnProtection, HOOK_HIGH )
-
