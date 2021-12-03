@@ -67,7 +67,7 @@ end
 
 -- Set Spawn Protection
 local function setSpawnProtection( ply )
-    ply:SetNWBool( "hasSpawnProtection", true )
+    ply.hasSpawnProtection = true
 end
 
 local function setLastSpawnTime( ply )
@@ -97,7 +97,7 @@ local function removeSpawnProtection( ply, printMessage )
     if not isValidPlayer( ply ) then return end
 
     ply:ChatPrint( printMessage )
-    ply:SetNWBool( "hasSpawnProtection", false )
+    ply.hasSpawnProtection = true
 end
 
 -- Creates a decay timer which will expire after spawnProtectionDecayTime
@@ -116,7 +116,7 @@ end
 local function createDelayedRemoveTimer( ply )
     local playerIdentifer = playerDelayedRemovalTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionMoveDelay, 1, function()
-        ply:SetNWBool( "disablingSpawnProtection", false )
+        ply.disablingSpawnProtection = false
 
         local printMessage = "You've lost your spawn protection because you moved after spawning"
         removeSpawnProtection( ply, printMessage )
@@ -127,7 +127,7 @@ end
 
 -- Used to delay the removal of spawn protection
 local function delayRemoveSpawnProtection( ply )
-    ply:SetNWBool( "disablingSpawnProtection", true )
+    ply.disablingSpawnProtection = true
     createDelayedRemoveTimer( ply )
 end
 
@@ -146,11 +146,11 @@ local function playerIsInPvp( ply )
 end
 
 local function playerHasSpawnProtection( ply )
-    return ply:GetNWBool( "hasSpawnProtection", false )
+    return ply.hasSpawnProtection
 end
 
 local function playerIsDisablingSpawnProtection( ply )
-    return ply:GetNWBool( "disablingSpawnProtection", false )
+    return ply.disablingSpawnProtection
 end
 
 local function weaponIsAllowed( weapon )
@@ -181,6 +181,7 @@ end
 
 -- Instantly removes spawn protection and removes timers and alpha level.
 local function instantRemoveSpawnProtection( ply, message )
+    if not playerHasSpawnProtection( ply ) then return end 
     removeSpawnProtection( ply, message )
     setPlayerVisible( ply )
     removeDecayTimer( ply )
