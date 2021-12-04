@@ -213,9 +213,9 @@ end
 local function spawnProtectionMoveCheck( ply, keyCode )
     if playerIsDisablingSpawnProtection( ply ) then return end
     if not playerHasSpawnProtection( ply ) then return end
-    if keyVoidsSpawnProtection[ keyCode ] then
-        delayRemoveSpawnProtection( ply )
-    end
+    if not keyVoidsSpawnProtection[ keyCode ] then return end
+
+    delayRemoveSpawnProtection( ply )
 end
 
 -- Prevents damage if a player has spawn protection
