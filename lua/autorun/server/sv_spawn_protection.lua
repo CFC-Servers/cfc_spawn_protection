@@ -245,6 +245,25 @@ hook.Add( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", func
     instantRemoveSpawnProtection( ply, "You've entered a vehicle and lost spawn protection." )
 end )
 
+-- Physgun activity
+hook.Add( "OnPhysgunPickup", "CFCremoveSpawnProtectionOnPhysgunPickup", function( ply )
+    if not playerHasSpawnProtection( ply ) then return end
+
+    instantRemoveSpawnProtection( ply, "You've picked up a prop and lost spawn protection." )
+end )
+
+hook.Add( "OnPhysgunReload", "CFCremoveSpawnProtectionOnPhysgunReload", function( ply )
+    if not playerHasSpawnProtection( ply ) then return end
+
+    instantRemoveSpawnProtection( ply, "You unfroze props and lost spawn protection." )
+end )
+
+hook.Add( "OnPhysgunFreeze", "CFCremoveSpawnProtectionOnPhysgunFreeze", function( ply )
+    if not playerHasSpawnProtection( ply ) then return end
+
+    instantRemoveSpawnProtection( ply, "You unfroze a prop and lost spawn protection." )
+end )
+
 -- Enable spawn protection when spawning in PvP
 hook.Add( "PlayerSpawn", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn )
 
