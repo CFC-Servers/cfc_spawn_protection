@@ -252,16 +252,10 @@ hook.Add( "OnPhysgunPickup", "CFCremoveSpawnProtectionOnPhysgunPickup", function
     instantRemoveSpawnProtection( ply, "You've picked up a prop and lost spawn protection." )
 end )
 
-hook.Add( "OnPhysgunReload", "CFCremoveSpawnProtectionOnPhysgunReload", function( ply )
+hook.Add( "CanPlayerUnfreeze", "CFCremoveSpawnProtectionOnUnfreeze", function( ply )
     if not playerHasSpawnProtection( ply ) then return end
 
     instantRemoveSpawnProtection( ply, "You unfroze props and lost spawn protection." )
-end )
-
-hook.Add( "OnPhysgunFreeze", "CFCremoveSpawnProtectionOnPhysgunFreeze", function( ply )
-    if not playerHasSpawnProtection( ply ) then return end
-
-    instantRemoveSpawnProtection( ply, "You unfroze a prop and lost spawn protection." )
 end )
 
 -- Enable spawn protection when spawning in PvP
