@@ -142,7 +142,7 @@ local function playerSpawnedAtEnemySpawnPoint( ply )
 end
 
 local function playerIsInPvp( ply )
-    return ply:isInPvp()
+    return ply:IsInPvp()
 end
 
 local function playerHasSpawnProtection( ply )
