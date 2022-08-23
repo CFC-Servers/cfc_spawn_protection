@@ -6,9 +6,6 @@ local spawnProtectionMoveDelay = 2
 -- Time in seconds before spawn protection wears off if no action is taken
 local spawnProtectionDecayTime = 10
 
--- How long players are allowed to hold weapons after spawning ( in seconds )
-local spawnProtectionWeaponGracePeriod = 0.001
-
 -- Prefix for the internal timer names - used to avoid timer collision
 local spawnDecayPrefix = "cfc_spawn_decay_timer-"
 
@@ -70,10 +67,6 @@ local function setSpawnProtection( ply )
     ply.hasSpawnProtection = true
 end
 
-local function setLastSpawnTime( ply )
-    ply:SetNWInt( "lastSpawnTime", CurTime() )
-end
-
 -- Remove Decay Timer
 local function removeDecayTimer( ply )
     -- Timer might exist after player has left
@@ -104,8 +97,8 @@ end
 local function createDecayTimer( ply )
     local playerIdentifer = playerDecayTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionDecayTime, 1, function()
-
         local printMessage = "You've lost your default spawn protection"
+
         removeSpawnProtection( ply, printMessage )
         setPlayerVisible( ply )
         removeDelayedRemoveTimer( ply )
@@ -159,24 +152,18 @@ end
 
 -- Hook functions --
 
--- Function called on player spawn to grant spawn protection
+-- Function called on PlayerLoadout to grant spawn protection
 local function setSpawnProtectionForPvpSpawn( ply )
     if not isValidPlayer( ply ) then return end
     if not playerIsInPvp( ply ) then return end
 
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
 
-    ply:Give( "weapon_physgun" )
-    ply:SelectWeapon( "weapon_physgun" )
     timer.Simple( 0, function()
-       ply:Give( "weapon_physgun" )
-       ply:SelectWeapon( "weapon_physgun" )
+        setSpawnProtection( ply )
+        setPlayerTransparent( ply )
+        createDecayTimer( ply )
     end )
-
-    setLastSpawnTime( ply )
-    setSpawnProtection( ply )
-    setPlayerTransparent( ply )
-    createDecayTimer( ply )
 end
 
 -- Instantly removes spawn protection and removes timers and alpha level.
@@ -194,9 +181,6 @@ local function spawnProtectionWeaponChangeCheck( ply, _, newWeapon )
     if not playerIsInPvp( ply ) then return end
     if not playerHasSpawnProtection( ply ) then return end
     if weaponIsAllowed( newWeapon ) then return end
-
-    local lastSpawnTime = ply:GetNWInt( "lastSpawnTime", CurTime() - spawnProtectionWeaponGracePeriod )
-    if lastSpawnTime >= CurTime() - spawnProtectionWeaponGracePeriod then return end
 
     instantRemoveSpawnProtection( ply, "You've equipped a weapon and lost spawn protection." )
 end
@@ -253,7 +237,7 @@ hook.Add( "OnPhysgunPickup", "CFCremoveSpawnProtectionOnPhysgunPickup", function
 end )
 
 -- Enable spawn protection when spawning in PvP
-hook.Add( "PlayerSpawn", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn )
+hook.Add( "PlayerLoadout", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn )
 
 -- Trigger spawn protection removal on player move
 hook.Add( "KeyPress", "CFCspawnProtectionMoveCheck", spawnProtectionMoveCheck )
