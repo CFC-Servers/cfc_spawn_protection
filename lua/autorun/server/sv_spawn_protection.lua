@@ -135,7 +135,7 @@ local function playerSpawnedAtEnemySpawnPoint( ply )
 end
 
 local function playerIsInPvp( ply )
-    return ply:IsInPvp()
+    return ply.IsInPvp and ply:IsInPvp() or true
 end
 
 local function playerHasSpawnProtection( ply )
@@ -237,7 +237,7 @@ hook.Add( "OnPhysgunPickup", "CFCremoveSpawnProtectionOnPhysgunPickup", function
 end )
 
 -- Enable spawn protection when spawning in PvP
-hook.Add( "PlayerLoadout", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn )
+hook.Add( "PlayerSpawn", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn )
 
 -- Trigger spawn protection removal on player move
 hook.Add( "KeyPress", "CFCspawnProtectionMoveCheck", spawnProtectionMoveCheck )
