@@ -159,11 +159,9 @@ local function setSpawnProtectionForPvpSpawn( ply )
 
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
 
-    timer.Simple( 0, function()
-        setSpawnProtection( ply )
-        setPlayerTransparent( ply )
-        createDecayTimer( ply )
-    end )
+    setSpawnProtection( ply )
+    setPlayerTransparent( ply )
+    createDecayTimer( ply )
 end
 
 -- Instantly removes spawn protection and removes timers and alpha level.
@@ -236,8 +234,8 @@ hook.Add( "OnPhysgunPickup", "CFCremoveSpawnProtectionOnPhysgunPickup", function
     instantRemoveSpawnProtection( ply, "You've picked up a prop and lost spawn protection." )
 end )
 
--- Enable spawn protection when spawning in PvP
-hook.Add( "PlayerSpawn", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn )
+-- PlayerSetModel runs after PlayerLoadout, so we can use it to set spawn protection
+hook.Add( "PlayerSetModel", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn, HOOK_HIGH )
 
 -- Trigger spawn protection removal on player move
 hook.Add( "KeyPress", "CFCspawnProtectionMoveCheck", spawnProtectionMoveCheck )
