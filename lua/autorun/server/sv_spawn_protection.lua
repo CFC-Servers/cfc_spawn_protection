@@ -135,7 +135,7 @@ local function playerSpawnedAtEnemySpawnPoint( ply )
 end
 
 local function playerIsInPvp( ply )
-    return ply.IsInPvp and ply:IsInPvp() or true
+    return ply.IsInPvp == nil and true or ply:IsInPvp()
 end
 
 local function playerHasSpawnProtection( ply )
