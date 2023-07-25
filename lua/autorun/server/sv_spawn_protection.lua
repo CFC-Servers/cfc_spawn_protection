@@ -12,12 +12,22 @@ local spawnDecayPrefix = "cfc_spawn_decay_timer-"
 local delayedRemovalPrefix = "cfc_spawn_removal_timer-"
 
 -- Table of key enums which are disallowed in spawn protection
-local keyVoidsSpawnProtection = {}
-keyVoidsSpawnProtection[IN_MOVELEFT]  = true
-keyVoidsSpawnProtection[IN_MOVERIGHT] = true
-keyVoidsSpawnProtection[IN_FORWARD]   = true
-keyVoidsSpawnProtection[IN_BACK]      = true
+local movementKeys = {
+    [IN_MOVELEFT]  = true,
+    [IN_MOVERIGHT] = true,
+    [IN_FORWARD]   = true,
+    [IN_BACK]      = true,
+    [IN_JUMP]      = true,
+    [IN_DUCK]      = true,
+}
 
+local attackKeys = {
+    [IN_ATTACK]  = true,
+    [IN_ATTACK2] = true,
+    [IN_RELOAD]  = true,
+    [IN_WEAPON1] = true,
+    [IN_WEAPON2] = true,
+}
 
 -- Weapons allowed to the player which won't break spawn protection
 local allowedSpawnWeapons = {
@@ -190,14 +200,20 @@ local function spawnProtectionUseCheck( ply )
     instantRemoveSpawnProtection( ply, "You've used an entity and lost spawn protection." )
 end
 
--- Called on player keyDown events to check if a movement key was pressed
+-- Called on player keyDown events to check if a movement/attack key was pressed
 -- and remove spawn protection if so
-local function spawnProtectionMoveCheck( ply, keyCode )
-    if playerIsDisablingSpawnProtection( ply ) then return end
+local function spawnProtectionKeyPressCheck( ply, keyCode )
+    if not ply:Alive() then return end
     if not playerHasSpawnProtection( ply ) then return end
-    if not keyVoidsSpawnProtection[ keyCode ] then return end
 
-    delayRemoveSpawnProtection( ply )
+    if playerIsDisablingSpawnProtection( ply ) and movementKeys[keyCode] then
+        delayRemoveSpawnProtection( ply )
+        return
+    end
+
+    if attackKeys[keyCode] then
+        instantRemoveSpawnProtection( ply, "You've attacked and lost spawn protection." )
+    end
 end
 
 -- Prevents damage if a player has spawn protection
@@ -237,8 +253,8 @@ end )
 -- PlayerSetModel runs after PlayerLoadout, so we can use it to set spawn protection
 hook.Add( "PlayerSetModel", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn, HOOK_HIGH )
 
--- Trigger spawn protection removal on player move
-hook.Add( "KeyPress", "CFCspawnProtectionMoveCheck", spawnProtectionMoveCheck )
+-- Trigger spawn protection removal on player KeyPress
+hook.Add( "KeyPress", "CFCspawnProtectionKeyPressCheck", spawnProtectionKeyPressCheck )
 
 -- Prevent entity damage while in spawn protection
 hook.Add( "EntityTakeDamage", "CFCpreventDamageDuringSpawnProtection", preventDamageDuringSpawnProtection, HOOK_HIGH )
