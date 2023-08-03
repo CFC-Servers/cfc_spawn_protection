@@ -211,7 +211,7 @@ local function spawnProtectionKeyPressCheck( ply, keyCode )
         return
     end
 
-    if attackKeys[keyCode] then
+    if attackKeys[keyCode] and not weaponIsAllowed( ply:GetActiveWeapon() ) then
         instantRemoveSpawnProtection( ply, "You've attacked and lost spawn protection." )
     end
 end
