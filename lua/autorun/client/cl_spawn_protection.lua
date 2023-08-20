@@ -12,7 +12,7 @@ surface.CreateFont( "SpawnProtection", {
 } )
 
 local function drawNotice()
-    local active = LocalPlayer():GetNWBool( "spawnProtection", false )
+    local active = LocalPlayer():GetNWBool( "HasSpawnProtection", false )
     if not active then return end
 
     draw.SimpleTextOutlined( "Spawn protection enabled", "SpawnProtection", scrw * 0.5, scrh * 0.9, textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, outlineColor )

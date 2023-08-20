@@ -74,8 +74,7 @@ end
 
 -- Set Spawn Protection
 local function setSpawnProtection( ply )
-    ply:SetNWBool( "spawnProtection", true )
-    ply.hasSpawnProtection = true
+    ply:SetNWBool( "HasSpawnProtection", true )
 end
 
 -- Remove Decay Timer
@@ -101,8 +100,7 @@ local function removeSpawnProtection( ply, printMessage )
     if not isValidPlayer( ply ) then return end
 
     ply:ChatPrint( printMessage )
-    ply:SetNWBool( "spawnProtection", false )
-    ply.hasSpawnProtection = false
+    ply:SetNWBool( "HasSpawnProtection", false )
 end
 
 -- Creates a decay timer which will expire after spawnProtectionDecayTime
@@ -151,7 +149,7 @@ local function playerIsInPvp( ply )
 end
 
 local function playerHasSpawnProtection( ply )
-    return ply.hasSpawnProtection
+    return ply:GetNWBool( "HasSpawnProtection", false )
 end
 
 local function playerIsDisablingSpawnProtection( ply )
