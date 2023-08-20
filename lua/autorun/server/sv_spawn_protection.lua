@@ -74,6 +74,7 @@ end
 
 -- Set Spawn Protection
 local function setSpawnProtection( ply )
+    ply:SetNWBool( "spawnProtection", true )
     ply.hasSpawnProtection = true
 end
 
@@ -100,6 +101,7 @@ local function removeSpawnProtection( ply, printMessage )
     if not isValidPlayer( ply ) then return end
 
     ply:ChatPrint( printMessage )
+    ply:SetNWBool( "spawnProtection", false )
     ply.hasSpawnProtection = false
 end
 
