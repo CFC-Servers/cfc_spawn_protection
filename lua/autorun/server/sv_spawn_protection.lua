@@ -11,6 +11,9 @@ local spawnDecayPrefix = "cfc_spawn_decay_timer-"
 
 local delayedRemovalPrefix = "cfc_spawn_removal_timer-"
 
+-- players that have gotten a one time "infinite length" spawn protection
+local doneInfiniteLength = {}
+
 -- Table of key enums which are disallowed in spawn protection
 local movementKeys = {
     [IN_MOVELEFT]  = true,
@@ -105,6 +108,9 @@ end
 
 -- Creates a decay timer which will expire after spawnProtectionDecayTime
 local function createDecayTimer( ply )
+    -- infinite spawn protection duration for first spawns
+    if not doneInfiniteLength[ply] then doneInfiniteLength[ply] = true return end
+
     local playerIdentifer = playerDecayTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionDecayTime, 1, function()
         local printMessage = "You've lost your default spawn protection"
@@ -253,6 +259,12 @@ end )
 
 -- PlayerSetModel runs after PlayerLoadout, so we can use it to set spawn protection
 hook.Add( "PlayerSetModel", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn, HOOK_HIGH )
+
+-- Properly handle spawning in players
+hook.Add( "PlayerFullLoad", "CFCResetInfiniteSpawnProtection", function( ply )
+    doneInfiniteLength[ply] = nil
+    setSpawnProtectionForPvpSpawn( ply )
+end, HOOK_LOW )
 
 -- Trigger spawn protection removal on player KeyPress
 hook.Add( "KeyPress", "CFCspawnProtectionKeyPressCheck", spawnProtectionKeyPressCheck )
