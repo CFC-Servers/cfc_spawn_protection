@@ -103,8 +103,13 @@ local function removeSpawnProtection( ply, printMessage )
     ply:SetNWBool( "HasSpawnProtection", false )
 end
 
+local doneInfiniteLength = {}
+
 -- Creates a decay timer which will expire after spawnProtectionDecayTime
 local function createDecayTimer( ply )
+    -- infinite spawn protection duration for first spawns
+    if not doneInfiniteLength[ply] then doneInfiniteLength[ply] = true return end
+
     local playerIdentifer = playerDecayTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionDecayTime, 1, function()
         local printMessage = "You've lost your default spawn protection"
