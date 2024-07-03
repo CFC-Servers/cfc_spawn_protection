@@ -38,7 +38,7 @@ local allowedSpawnWeapons = {
     ["weapon_medkit"]     = true,
     ["none"]              = true,
     ["laserpointer"]      = true,
-    ["remotecontroller"]  = true
+    ["remotecontroller"]  = true,
 }
 
 -- Helpers / Wrappers --
@@ -67,7 +67,7 @@ local function playerDecayTimerIdentifier( ply )
     return spawnDecayPrefix .. ply:SteamID64()
 end
 
--- Creates a unique name for the Delayed Removal Timer
+-- Creates a unique name for the Delayed Removal timer
 local function playerDelayedRemovalTimerIdentifier( ply )
     return delayedRemovalPrefix .. ply:SteamID64()
 end
