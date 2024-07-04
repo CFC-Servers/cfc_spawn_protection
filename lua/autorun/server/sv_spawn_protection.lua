@@ -288,3 +288,11 @@ hook.Add( "PlayerSpawn", "CFCspawnProtectionResumeCheckingWeapons", function( pl
         end
     end )
 end )
+
+hook.Add( "CLoadoutOverridePreferredWeapon", "CFCspawnProtectionForcePhysgun", function( ply )
+    -- Always force the physgun to be equipped and selected on spawn
+    ply:Give( "weapon_physgun" )
+    ply:SelectWeapon( "weapon_physgun" )
+
+    return false
+end )
