@@ -9,7 +9,6 @@ local spawnProtectionDecayTime = 10
 -- Prefix for the internal timer names - used to avoid timer collision
 local spawnDecayPrefix = "cfc_spawn_decay_timer-"
 local delayedRemovalPrefix = "cfc_spawn_removal_timer-"
-local startCheckingWeaponsPrefix = "cfc_spawn_start_checking_weapons_timer-"
 
 -- Table of key enums which are disallowed in spawn protection
 local movementKeys = {
@@ -70,11 +69,6 @@ end
 -- Creates a unique name for the Delayed Removal timer
 local function playerDelayedRemovalTimerIdentifier( ply )
     return delayedRemovalPrefix .. ply:SteamID64()
-end
-
--- Creates a unique name for the Start Checking Weapons timer
-local function playerStartCheckingWeaponsTimerIdentifier( ply )
-    return startCheckingWeaponsPrefix .. ply:SteamID64()
 end
 
 -- Set Spawn Protection
@@ -188,17 +182,6 @@ local function instantRemoveSpawnProtection( ply, message )
     removeDelayedRemoveTimer( ply )
 end
 
--- Called on weapon change to check if the weapon is allowed,
--- and remove spawn protection if it's not
-local function spawnProtectionWeaponChangeCheck( ply, _, newWeapon )
-    if not playerIsInPvp( ply ) then return end
-    if ply.spawnProtectionCannotCheckWeapons then return end
-    if not playerHasSpawnProtection( ply ) then return end
-    if weaponIsAllowed( newWeapon ) then return end
-
-    instantRemoveSpawnProtection( ply, "You've equipped a weapon and lost spawn protection." )
-end
-
 -- Remove spawn protection on using objects
 local function spawnProtectionUseCheck( ply )
     if not playerIsInPvp( ply ) then return end
@@ -229,9 +212,6 @@ local function preventDamageDuringSpawnProtection( ply )
 end
 
 -- Hooks --
-
--- Remove spawn protection when a weapon is drawn
-hook.Add( "PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtectionWeaponChangeCheck, HOOK_LOW )
 
 -- Prevents players from using weapons / vehicles.
 hook.Add( "PlayerUse", "CFCspawnProtectionPlayerUse", spawnProtectionUseCheck )
@@ -265,34 +245,3 @@ hook.Add( "KeyPress", "CFCspawnProtectionKeyPressCheck", spawnProtectionKeyPress
 
 -- Prevent entity damage while in spawn protection
 hook.Add( "EntityTakeDamage", "CFCpreventDamageDuringSpawnProtection", preventDamageDuringSpawnProtection, HOOK_HIGH )
-
--- Disable weapon checking on a player once they die
-hook.Add( "PlayerDeath", "CFCspawnProtectionPauseCheckingWeapons", function( ply )
-    ply.spawnProtectionCannotCheckWeapons = true
-end )
-
--- Resume weapon checking on a player with a slight delay after they spawn, after loadout addons give their weapons
--- The expectation is for loadouts to prioritize holding the physgun at the end, making players not lose spawn protection
--- Note that some loadout addons (like StyledStrike's) use a 0.1s timer on PlayerLoadout to give weapons
-hook.Add( "PlayerSpawn", "CFCspawnProtectionResumeCheckingWeapons", function( ply )
-    local playerIdentifer = playerStartCheckingWeaponsTimerIdentifier( ply )
-    timer.Create( playerIdentifer, 0.3, 1, function()
-        if not IsValid( ply ) then return end
-
-        ply.spawnProtectionCannotCheckWeapons = nil
-
-        local wep = ply:GetActiveWeapon()
-
-        if IsValid( wep ) then
-            spawnProtectionWeaponChangeCheck( ply, nil, wep )
-        end
-    end )
-end )
-
-hook.Add( "CLoadoutOverridePreferredWeapon", "CFCspawnProtectionForcePhysgun", function( ply )
-    -- Always force the physgun to be equipped and selected on spawn
-    ply:Give( "weapon_physgun" )
-    ply:SelectWeapon( "weapon_physgun" )
-
-    return false
-end )
