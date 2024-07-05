@@ -8,7 +8,6 @@ local spawnProtectionDecayTime = 10
 
 -- Prefix for the internal timer names - used to avoid timer collision
 local spawnDecayPrefix = "cfc_spawn_decay_timer-"
-
 local delayedRemovalPrefix = "cfc_spawn_removal_timer-"
 
 -- Table of key enums which are disallowed in spawn protection
@@ -38,7 +37,7 @@ local allowedSpawnWeapons = {
     ["weapon_medkit"]     = true,
     ["none"]              = true,
     ["laserpointer"]      = true,
-    ["remotecontroller"]  = true
+    ["remotecontroller"]  = true,
 }
 
 -- Helpers / Wrappers --
@@ -67,7 +66,7 @@ local function playerDecayTimerIdentifier( ply )
     return spawnDecayPrefix .. ply:SteamID64()
 end
 
--- Creates a unique name for the Delayed Removal Timer
+-- Creates a unique name for the Delayed Removal timer
 local function playerDelayedRemovalTimerIdentifier( ply )
     return delayedRemovalPrefix .. ply:SteamID64()
 end
@@ -183,16 +182,6 @@ local function instantRemoveSpawnProtection( ply, message )
     removeDelayedRemoveTimer( ply )
 end
 
--- Called on weapon change to check if the weapon is allowed,
--- and remove spawn protection if it's not
-local function spawnProtectionWeaponChangeCheck( ply, _, newWeapon )
-    if not playerIsInPvp( ply ) then return end
-    if not playerHasSpawnProtection( ply ) then return end
-    if weaponIsAllowed( newWeapon ) then return end
-
-    instantRemoveSpawnProtection( ply, "You've equipped a weapon and lost spawn protection." )
-end
-
 -- Remove spawn protection on using objects
 local function spawnProtectionUseCheck( ply )
     if not playerIsInPvp( ply ) then return end
@@ -223,9 +212,6 @@ local function preventDamageDuringSpawnProtection( ply )
 end
 
 -- Hooks --
-
--- Remove spawn protection when a weapon is drawn
-hook.Add( "PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtectionWeaponChangeCheck, HOOK_LOW )
 
 -- Prevents players from using weapons / vehicles.
 hook.Add( "PlayerUse", "CFCspawnProtectionPlayerUse", spawnProtectionUseCheck )
