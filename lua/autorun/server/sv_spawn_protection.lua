@@ -266,6 +266,10 @@ hook.Add( "PlayerFullLoad", "CFCResetInfiniteSpawnProtection", function( ply )
     setSpawnProtectionForPvpSpawn( ply )
 end, HOOK_LOW )
 
+hook.Add( "PlayerDisconnected", "CFC_SpawnProtection_Cleanup", function( ply )
+    doneInfiniteLength[ply] = nil
+end )
+
 -- Trigger spawn protection removal on player KeyPress
 hook.Add( "KeyPress", "CFCspawnProtectionKeyPressCheck", spawnProtectionKeyPressCheck )
 
