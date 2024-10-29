@@ -172,6 +172,12 @@ local function setSpawnProtectionForPvpSpawn( ply )
     if not isValidPlayer( ply ) then return end
     if not playerIsInPvp( ply ) then return end
 
+    timer.Simple( 0.11, function()
+        if not IsValid( ply ) then return end
+        ply:Give( "weapon_physgun" )
+        ply:SelectWeapon(  "weapon_physgun" )
+    end )
+
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
 
     setSpawnProtection( ply )
@@ -229,11 +235,25 @@ hook.Add( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function( ply )
     instantRemoveSpawnProtection( ply, "You've left pvp mode and lost spawn protection." )
 end )
 
+hook.Add( "PlayerSwitchWeapon", "CFCspawnProtectionSwitch", function( ply, _, wep )
+    if not playerHasSpawnProtection( ply ) then return end
+
+    if not weaponIsAllowed( wep ) then
+        instantRemoveSpawnProtection( ply, "You've switched weapons and lost spawn protection" )
+    end
+end )
+
 -- Remove spawn protection when player enters vehicle
 hook.Add( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", function( ply )
     if not playerHasSpawnProtection( ply ) then return end
 
     instantRemoveSpawnProtection( ply, "You've entered a vehicle and lost spawn protection." )
+end )
+
+hook.Add( "CLoadoutOverridePreferredWeapon", "CFCSpawnProtection", function( ply, prefWeapon )
+    if not playerHasSpawnProtection( ply ) then return end
+    
+    return "weapon_physgun"
 end )
 
 -- Physgun activity
