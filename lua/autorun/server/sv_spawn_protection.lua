@@ -173,7 +173,7 @@ local function setSpawnProtectionForPvpSpawn( ply )
     if not playerIsInPvp( ply ) then return end
 
     ply:Give( "weapon_physgun" )
-    ply:SelectWeapon(  "weapon_physgun" )
+    ply:SelectWeapon( "weapon_physgun" )
     ply.cfcSpawnProtectionIgnoreWeaponSwitch = nil
 
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
