@@ -172,11 +172,9 @@ local function setSpawnProtectionForPvpSpawn( ply )
     if not isValidPlayer( ply ) then return end
     if not playerIsInPvp( ply ) then return end
 
-    timer.Simple( 0.11, function()
-        if not IsValid( ply ) then return end
-        ply:Give( "weapon_physgun" )
-        ply:SelectWeapon(  "weapon_physgun" )
-    end )
+    ply:Give( "weapon_physgun" )
+    ply:SelectWeapon(  "weapon_physgun" )
+    ply.cfcSpawnProtectionIgnoreWeaponSwitch = nil
 
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
 
@@ -236,6 +234,7 @@ hook.Add( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function( ply )
 end )
 
 hook.Add( "PlayerSwitchWeapon", "CFCspawnProtectionSwitch", function( ply, _, wep )
+    if ply.cfcSpawnProtectionIgnoreWeaponSwitch then return end
     if not playerHasSpawnProtection( ply ) then return end
 
     if not weaponIsAllowed( wep ) then
@@ -250,10 +249,18 @@ hook.Add( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", func
     instantRemoveSpawnProtection( ply, "You've entered a vehicle and lost spawn protection." )
 end )
 
-hook.Add( "CLoadoutOverridePreferredWeapon", "CFCSpawnProtection", function( ply, prefWeapon )
+-- CLoadout integration
+hook.Add( "CLoadoutOverridePreferredWeapon", "CFCSpawnProtection", function( ply )
     if not playerHasSpawnProtection( ply ) then return end
-    
+    ply.cfcSpawnProtectionIgnoreWeaponSwitch = false
+
+    ply:Give( "weapon_physgun" )
     return "weapon_physgun"
+end )
+
+hook.Add( "CLoadoutPreGiveWeapons", "CFCSpawnProtection", function( ply )
+    if not playerHasSpawnProtection( ply ) then return end
+    ply.cfcSpawnProtectionIgnoreWeaponSwitch = true
 end )
 
 -- Physgun activity
@@ -265,6 +272,9 @@ end )
 
 -- PlayerSetModel runs after PlayerLoadout, so we can use it to set spawn protection
 hook.Add( "PlayerSetModel", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn, HOOK_HIGH )
+hook.Add( "PlayerSpawn", "CFCsetSpawnProtection", function( ply )
+    ply.cfcSpawnProtectionIgnoreWeaponSwitch = true
+end )
 
 -- Properly handle spawning in players
 hook.Add( "PlayerFullLoad", "CFCResetInfiniteSpawnProtection", function( ply )
