@@ -1,7 +1,7 @@
 -- Config Variables --
 --
 -- Time in seconds after moving for the first time that the player will lose spawn protection
-local spawnProtectionMoveDelay = 2
+local spawnProtectionMoveDelay = 0.25
 
 -- Time in seconds before spawn protection wears off if no action is taken
 local spawnProtectionDecayTime = 10
@@ -133,12 +133,6 @@ local function createDelayedRemoveTimer( ply )
     end )
 end
 
--- Used to delay the removal of spawn protection
-local function delayRemoveSpawnProtection( ply )
-    ply.disablingSpawnProtection = true
-    createDelayedRemoveTimer( ply )
-end
-
 local function playerSpawnedAtEnemySpawnPoint( ply )
     local spawnPoint = ply.LinkedSpawnPoint
     if not spawnPoint or not IsValid( spawnPoint ) then return false end
@@ -154,11 +148,8 @@ local function playerIsInPvp( ply )
 end
 
 local function playerHasSpawnProtection( ply )
+    if not isValidPlayer( ply ) then return false end
     return ply:GetNWBool( "HasSpawnProtection", false )
-end
-
-local function playerIsDisablingSpawnProtection( ply )
-    return ply.disablingSpawnProtection
 end
 
 local function weaponIsAllowed( weapon )
@@ -171,10 +162,6 @@ end
 local function setSpawnProtectionForPvpSpawn( ply )
     if not isValidPlayer( ply ) then return end
     if not playerIsInPvp( ply ) then return end
-
-    ply:Give( "weapon_physgun" )
-    ply:SelectWeapon( "weapon_physgun" )
-    ply.cfcSpawnProtectionIgnoreWeaponSwitch = nil
 
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
 
@@ -205,14 +192,10 @@ local function spawnProtectionKeyPressCheck( ply, keyCode )
     if not ply:Alive() then return end
     if not playerHasSpawnProtection( ply ) then return end
 
-    if playerIsDisablingSpawnProtection( ply ) and movementKeys[keyCode] then
-        delayRemoveSpawnProtection( ply )
+    if ply.disablingSpawnProtection and movementKeys[keyCode] then
+        ply.disablingSpawnProtection = true
+        createDelayedRemoveTimer( ply )
         return
-    end
-
-    local plyActiveWeapon = ply:GetActiveWeapon()
-    if attackKeys[keyCode] and plyActiveWeapon:IsValid() and not weaponIsAllowed( plyActiveWeapon ) then
-        instantRemoveSpawnProtection( ply, "You've attacked and lost spawn protection." )
     end
 end
 
@@ -233,34 +216,11 @@ hook.Add( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function( ply )
     instantRemoveSpawnProtection( ply, "You've left pvp mode and lost spawn protection." )
 end )
 
-hook.Add( "PlayerSwitchWeapon", "CFCspawnProtectionSwitch", function( ply, _, wep )
-    if ply.cfcSpawnProtectionIgnoreWeaponSwitch then return end
-    if not playerHasSpawnProtection( ply ) then return end
-
-    if not weaponIsAllowed( wep ) then
-        instantRemoveSpawnProtection( ply, "You've switched weapons and lost spawn protection" )
-    end
-end )
-
 -- Remove spawn protection when player enters vehicle
 hook.Add( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", function( ply )
     if not playerHasSpawnProtection( ply ) then return end
 
     instantRemoveSpawnProtection( ply, "You've entered a vehicle and lost spawn protection." )
-end )
-
--- CLoadout integration
-hook.Add( "CLoadoutOverridePreferredWeapon", "CFCSpawnProtection", function( ply )
-    if not playerHasSpawnProtection( ply ) then return end
-    ply.cfcSpawnProtectionIgnoreWeaponSwitch = false
-
-    ply:Give( "weapon_physgun" )
-    return "weapon_physgun"
-end )
-
-hook.Add( "CLoadoutPreGiveWeapons", "CFCSpawnProtection", function( ply )
-    if not playerHasSpawnProtection( ply ) then return end
-    ply.cfcSpawnProtectionIgnoreWeaponSwitch = true
 end )
 
 -- Physgun activity
@@ -272,9 +232,6 @@ end )
 
 -- PlayerSetModel runs after PlayerLoadout, so we can use it to set spawn protection
 hook.Add( "PlayerSetModel", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn, HOOK_HIGH )
-hook.Add( "PlayerSpawn", "CFCsetSpawnProtection", function( ply )
-    ply.cfcSpawnProtectionIgnoreWeaponSwitch = true
-end )
 
 -- Properly handle spawning in players
 hook.Add( "PlayerFullLoad", "CFCResetInfiniteSpawnProtection", function( ply )
@@ -291,3 +248,15 @@ hook.Add( "KeyPress", "CFCspawnProtectionKeyPressCheck", spawnProtectionKeyPress
 
 -- Prevent entity damage while in spawn protection
 hook.Add( "EntityTakeDamage", "CFCpreventDamageDuringSpawnProtection", preventDamageDuringSpawnProtection, HOOK_HIGH )
+
+hook.Add( "CFC_PvP_ShouldBlockDamage", "CFC_SpawnProtection_BlockDamage", function( ent, _, attacker )
+    if playerHasSpawnProtection( ent ) then
+        return true, "Victim has spawn protection"
+    end
+
+    if not attacker then return end
+    if not playerHasSpawnProtection( attacker ) then return end
+
+    instantRemoveSpawnProtection( attacker, "You've attaked another player and lost spawn protection (Damage not dealt!)" )
+    return true, "Attacker has spawn protection"
+end )
