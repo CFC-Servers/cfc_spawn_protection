@@ -203,7 +203,7 @@ local function spawnProtectionKeyPressCheck( ply, keyCode )
     if not ply:Alive() then return end
     if not playerHasSpawnProtection( ply ) then return end
 
-    if (not playerIsDisablingSpawnProtection( ply )) and movementKeys[keyCode] then
+    if ( not playerIsDisablingSpawnProtection( ply ) ) and movementKeys[keyCode] then
         delayRemoveSpawnProtection( ply )
         return
     end
