@@ -110,6 +110,8 @@ local function createDecayTimer( ply )
 
     local playerIdentifer = playerDecayTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionDecayTime, 1, function()
+        if not isValidPlayer( ply ) then return end
+
         local printMessage = "You've lost your default spawn protection"
 
         removeSpawnProtection( ply, printMessage )
@@ -122,6 +124,8 @@ end
 local function createDelayedRemoveTimer( ply )
     local playerIdentifer = playerDelayedRemovalTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionMoveDelay, 1, function()
+        if not isValidPlayer( ply ) then return end
+
         ply.disablingSpawnProtection = false
 
         local printMessage = "You've lost your spawn protection because you moved after spawning"
