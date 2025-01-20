@@ -124,7 +124,7 @@ local function createDelayedRemoveTimer( ply )
     timer.Create( playerIdentifer, spawnProtectionMoveDelay, 1, function()
         ply.disablingSpawnProtection = false
 
-        local printMessage = "You've lost your spawn protection because you moved after spawning"
+        local printMessage = "You've moved and lost spawnprotection."
         removeSpawnProtection( ply, printMessage )
         setPlayerVisible( ply )
         removeDecayTimer( ply )
