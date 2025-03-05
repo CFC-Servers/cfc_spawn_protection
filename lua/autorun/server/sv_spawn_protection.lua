@@ -172,6 +172,11 @@ local function setSpawnProtectionForPvpSpawn( ply )
 
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
 
+    local lastDeaths = ply.cfcLastSpawnProtectDeaths or -1
+    local currDeaths = ply:Deaths()
+    if lastDeaths == currDeaths then return end -- player spawned without dying, probably ragdolled, dont protect!
+    ply.cfcLastSpawnProtectDeaths = currDeaths
+
     setSpawnProtection( ply )
     setPlayerTransparent( ply )
     createDecayTimer( ply )
@@ -246,6 +251,7 @@ hook.Add( "PlayerSetModel", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpa
 -- Properly handle spawning in players
 hook.Add( "PlayerFullLoad", "CFCResetInfiniteSpawnProtection", function( ply )
     doneInfiniteLength[ply] = nil
+    ply.cfcLastSpawnProtectDeaths = -1
     setSpawnProtectionForPvpSpawn( ply )
 end, HOOK_LOW )
 
