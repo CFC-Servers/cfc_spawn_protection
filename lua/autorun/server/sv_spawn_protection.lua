@@ -165,6 +165,10 @@ end
 
 -- Hook functions --
 
+local function earnPlyAProtectedSpawn( ply )
+    ply.cfc_earnedSpawnProtection = true
+end
+
 -- Function called on PlayerLoadout to grant spawn protection
 local function setSpawnProtectionForPvpSpawn( ply )
     if not isValidPlayer( ply ) then return end
@@ -246,18 +250,14 @@ end )
 
 hook.Add( "PlayerSetModel", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn, HOOK_HIGH )
 
-hook.Add( "PlayerDeath", "CFCEarnSpawnProtection", function( ply )
-    ply.cfc_earnedSpawnProtection = true
-end )
+hook.Add( "PlayerDeath", "CFCEarnSpawnProtection", earnPlyAProtectedSpawn )
 
-hook.Add( "PlayerSilentDeath", "CFCEarnSpawnProtection", function( ply )
-    ply.cfc_earnedSpawnProtection = true
-end )
+hook.Add( "PlayerSilentDeath", "CFCEarnSpawnProtection", earnPlyAProtectedSpawn )
 
 -- Properly handle spawning in players
 hook.Add( "PlayerFullLoad", "CFCResetInfiniteSpawnProtection", function( ply )
     doneInfiniteLength[ply] = nil
-    ply.cfc_earnedSpawnProtection = true
+    earnPlyAProtectedSpawn( ply )
     setSpawnProtectionForPvpSpawn( ply )
 end, HOOK_LOW )
 
