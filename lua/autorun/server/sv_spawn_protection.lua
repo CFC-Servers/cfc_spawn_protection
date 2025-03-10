@@ -172,10 +172,8 @@ local function setSpawnProtectionForPvpSpawn( ply )
 
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
 
-    local lastDeaths = ply.cfcLastSpawnProtectDeaths or -1
-    local currDeaths = ply:Deaths()
-    if lastDeaths == currDeaths then return end -- player spawned without dying, probably ragdolled, dont protect!
-    ply.cfcLastSpawnProtectDeaths = currDeaths
+    if not ply.cfc_earnedSpawnProtection then return end -- dont give spawn protection if player never died, eg ulx ragdoll, glide ragdolling
+    ply.cfc_earnedSpawnProtection = nil
 
     setSpawnProtection( ply )
     setPlayerTransparent( ply )
@@ -248,10 +246,14 @@ end )
 
 hook.Add( "PlayerSetModel", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn, HOOK_HIGH )
 
+hook.Add( "PlayerDeath", "CFCEarnSpawnProtection", function( ply )
+    ply.cfc_earnedSpawnProtection = true
+end )
+
 -- Properly handle spawning in players
 hook.Add( "PlayerFullLoad", "CFCResetInfiniteSpawnProtection", function( ply )
     doneInfiniteLength[ply] = nil
-    ply.cfcLastSpawnProtectDeaths = -1
+    ply.cfc_earnedSpawnProtection = true
     setSpawnProtectionForPvpSpawn( ply )
 end, HOOK_LOW )
 
