@@ -165,12 +165,19 @@ end
 
 -- Hook functions --
 
+local function earnPlyAProtectedSpawn( ply )
+    ply.cfc_earnedSpawnProtection = true
+end
+
 -- Function called on PlayerLoadout to grant spawn protection
 local function setSpawnProtectionForPvpSpawn( ply )
     if not isValidPlayer( ply ) then return end
     if not playerIsInPvp( ply ) then return end
 
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
+
+    if not ply.cfc_earnedSpawnProtection then return end -- dont give spawn protection if player never died, eg ulx ragdoll, glide ragdolling
+    ply.cfc_earnedSpawnProtection = nil
 
     setSpawnProtection( ply )
     setPlayerTransparent( ply )
@@ -199,7 +206,7 @@ local function spawnProtectionKeyPressCheck( ply, keyCode )
     if not ply:Alive() then return end
     if not playerHasSpawnProtection( ply ) then return end
 
-    if (not playerIsDisablingSpawnProtection( ply )) and movementKeys[keyCode] then
+    if ( not playerIsDisablingSpawnProtection( ply ) ) and movementKeys[keyCode] then
         delayRemoveSpawnProtection( ply )
         return
     end
@@ -243,9 +250,14 @@ end )
 
 hook.Add( "PlayerSetModel", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn, HOOK_HIGH )
 
+hook.Add( "PlayerDeath", "CFCEarnSpawnProtection", earnPlyAProtectedSpawn )
+
+hook.Add( "PlayerSilentDeath", "CFCEarnSpawnProtection", earnPlyAProtectedSpawn )
+
 -- Properly handle spawning in players
 hook.Add( "PlayerFullLoad", "CFCResetInfiniteSpawnProtection", function( ply )
     doneInfiniteLength[ply] = nil
+    earnPlyAProtectedSpawn( ply )
     setSpawnProtectionForPvpSpawn( ply )
 end, HOOK_LOW )
 
