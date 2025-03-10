@@ -250,6 +250,10 @@ hook.Add( "PlayerDeath", "CFCEarnSpawnProtection", function( ply )
     ply.cfc_earnedSpawnProtection = true
 end )
 
+hook.Add( "PlayerSilentDeath", "CFCEarnSpawnProtection", function( ply )
+    ply.cfc_earnedSpawnProtection = true
+end )
+
 -- Properly handle spawning in players
 hook.Add( "PlayerFullLoad", "CFCResetInfiniteSpawnProtection", function( ply )
     doneInfiniteLength[ply] = nil
