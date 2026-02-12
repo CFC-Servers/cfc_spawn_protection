@@ -93,6 +93,7 @@ local function removeDelayedRemoveTimer( ply )
 
     local playerIdentifer = playerDelayedRemovalTimerIdentifier( ply )
     timer.Remove( playerIdentifer )
+    ply.disablingSpawnProtection = nil
 end
 
 -- Revoke spawn protection for a player
@@ -179,6 +180,7 @@ local function setSpawnProtectionForPvpSpawn( ply )
     if not ply.cfc_earnedSpawnProtection then return end -- dont give spawn protection if player never died, eg ulx ragdoll, glide ragdolling
     ply.cfc_earnedSpawnProtection = nil
 
+    removeDelayedRemoveTimer( ply )
     setSpawnProtection( ply )
     setPlayerTransparent( ply )
     createDecayTimer( ply )
