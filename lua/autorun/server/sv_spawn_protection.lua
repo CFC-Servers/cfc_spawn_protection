@@ -136,7 +136,7 @@ local function createDelayedRemoveTimer( ply )
         if not ply:Alive() then return end
         if not playerHasSpawnProtection( ply ) then return end
 
-        ply.disablingSpawnProtection = false
+        ply.disablingSpawnProtection = nil
 
         local printMessage = "You've moved and lost spawn protection."
         removeSpawnProtection( ply, printMessage )
