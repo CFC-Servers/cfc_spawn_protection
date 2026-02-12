@@ -77,6 +77,10 @@ local function setSpawnProtection( ply )
     ply:SetNWBool( "HasSpawnProtection", true )
 end
 
+local function playerHasSpawnProtection( ply )
+    return ply:GetNWBool( "HasSpawnProtection", false )
+end
+
 -- Remove Decay Timer
 local function removeDecayTimer( ply )
     -- Timer might exist after player has left
@@ -93,6 +97,7 @@ local function removeDelayedRemoveTimer( ply )
 
     local playerIdentifer = playerDelayedRemovalTimerIdentifier( ply )
     timer.Remove( playerIdentifer )
+    ply.disablingSpawnProtection = nil
 end
 
 -- Revoke spawn protection for a player
@@ -110,6 +115,10 @@ local function createDecayTimer( ply )
 
     local playerIdentifer = playerDecayTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionDecayTime, 1, function()
+        if not isValidPlayer( ply ) then return end
+        if not ply:Alive() then return end
+        if not playerHasSpawnProtection( ply ) then return end
+
         local printMessage = "You've lost your default spawn protection"
 
         removeSpawnProtection( ply, printMessage )
@@ -122,7 +131,12 @@ end
 local function createDelayedRemoveTimer( ply )
     local playerIdentifer = playerDelayedRemovalTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionMoveDelay, 1, function()
-        ply.disablingSpawnProtection = false
+        if not isValidPlayer( ply ) then return end
+        if not ply.disablingSpawnProtection then return end
+        if not ply:Alive() then return end
+        if not playerHasSpawnProtection( ply ) then return end
+
+        ply.disablingSpawnProtection = nil
 
         local printMessage = "You've moved and lost spawn protection."
         removeSpawnProtection( ply, printMessage )
@@ -151,14 +165,6 @@ local function playerIsInPvp( ply )
     return ply.IsInPvp == nil and true or ply:IsInPvp()
 end
 
-local function playerHasSpawnProtection( ply )
-    return ply:GetNWBool( "HasSpawnProtection", false )
-end
-
-local function playerIsDisablingSpawnProtection( ply )
-    return ply.disablingSpawnProtection
-end
-
 local function weaponIsAllowed( weapon )
     return allowedSpawnWeapons[weapon:GetClass()]
 end
@@ -179,6 +185,7 @@ local function setSpawnProtectionForPvpSpawn( ply )
     if not ply.cfc_earnedSpawnProtection then return end -- dont give spawn protection if player never died, eg ulx ragdoll, glide ragdolling
     ply.cfc_earnedSpawnProtection = nil
 
+    removeDelayedRemoveTimer( ply )
     setSpawnProtection( ply )
     setPlayerTransparent( ply )
     createDecayTimer( ply )
@@ -206,7 +213,7 @@ local function spawnProtectionKeyPressCheck( ply, keyCode )
     if not ply:Alive() then return end
     if not playerHasSpawnProtection( ply ) then return end
 
-    if ( not playerIsDisablingSpawnProtection( ply ) ) and movementKeys[keyCode] then
+    if ( not ply.disablingSpawnProtection ) and movementKeys[keyCode] then
         delayRemoveSpawnProtection( ply )
         return
     end
