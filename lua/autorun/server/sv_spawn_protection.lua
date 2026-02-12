@@ -132,7 +132,7 @@ local function createDelayedRemoveTimer( ply )
     local playerIdentifer = playerDelayedRemovalTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionMoveDelay, 1, function()
         if not isValidPlayer( ply ) then return end
-        if not playerIsDisablingSpawnProtection( ply ) then return end
+        if not ply.disablingSpawnProtection then return end
         if not ply:Alive() then return end
         if not playerHasSpawnProtection( ply ) then return end
 
@@ -163,10 +163,6 @@ end
 
 local function playerIsInPvp( ply )
     return ply.IsInPvp == nil and true or ply:IsInPvp()
-end
-
-local function playerIsDisablingSpawnProtection( ply )
-    return ply.disablingSpawnProtection
 end
 
 local function weaponIsAllowed( weapon )
@@ -217,7 +213,7 @@ local function spawnProtectionKeyPressCheck( ply, keyCode )
     if not ply:Alive() then return end
     if not playerHasSpawnProtection( ply ) then return end
 
-    if ( not playerIsDisablingSpawnProtection( ply ) ) and movementKeys[keyCode] then
+    if ( not ply.disablingSpawnProtection ) and movementKeys[keyCode] then
         delayRemoveSpawnProtection( ply )
         return
     end
