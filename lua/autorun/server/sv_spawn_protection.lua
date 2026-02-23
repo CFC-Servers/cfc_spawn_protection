@@ -1,7 +1,7 @@
 -- Config Variables --
 --
 -- Time in seconds after moving for the first time that the player will lose spawn protection
-local spawnProtectionMoveDelay = 0.75
+local spawnProtectionMoveDelay = 3
 
 -- Time in seconds before spawn protection wears off if no action is taken
 local spawnProtectionDecayTime = 10
